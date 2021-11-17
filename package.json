@@ -1,0 +1,30 @@
+{
+  "name": "vidmint",
+  "version": "1.0.0",
+  "description": "vidmint is a video rental api",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doziestar/vidmit.git"
+  },
+  "keywords": [
+    "javascript",
+    "node",
+    "express"
+  ],
+  "author": "Chidozie C. Okafor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/doziestar/vidmit/issues"
+  },
+  "homepage": "https://github.com/doziestar/vidmit#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "joi": "^17.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.0.13"
+  }
+}
