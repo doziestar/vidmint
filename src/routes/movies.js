@@ -2,7 +2,7 @@ const c = require("config");
 const express = require("express");
 const Joi = require("joi");
 const Movie = require("../models/movie");
-const validateMovie = require("../validation/movie");
+const validateMovie = require("../validators/movie");
 
 const router = express.Router();
 
@@ -29,24 +29,26 @@ router.post("/", (req, res) => {
   res.send(movie);
 });
 
-router.get("/:id", (req, res) => {
-  const movie = Movie.findById(req.params.id);
+router.get("/:id", async (req, res) => {
+  const movie = await Movie.findById(req.params.id);
   if (!movie)
     return res.status(404).send("The movie with the given ID was not found.");
   res.send(movie);
 });
 
-router.delete("/:id", (req, res) => {
-  const movie = Movie.findByIdAndRemove(req.params.id);
+router.delete("/:id", async (req, res) => {
+  const movie = await Movie.findByIdAndRemove(req.params.id);
   if (!movie)
     return res.status(404).send("The movie with the given ID was not found.");
   res.sendStatus(204);
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   const { error } = validateMovie(req.body);
   if (error) return res.status(400).send(error.details[0].message);
-  const movie = Movie.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
   if (!movie)
     return res.status(404).send("The movie with the given ID was not found.");
   res.send(movie);
