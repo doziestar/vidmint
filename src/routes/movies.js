@@ -1,62 +1,55 @@
+const c = require("config");
 const express = require("express");
 const Joi = require("joi");
+const Movie = require("../models/movie");
+const validateMovie = require("../validation/movie");
 
-router = express.Router();
-
-// app data and schema
-const genre = [
-  { id: 1, name: "robinhood", year: 2000, producer: "jack smith" },
-  { id: 2, name: "robin", year: 2003, producer: "smith" },
-  { id: 3, name: "hood", year: 2001, producer: "jack" },
-  { id: 4, name: "james bond", year: 2010, producer: "john smith" },
-];
-
-const validateSchema = (movie) => {
-  const schema = Joi.object({
-    name: Joi.string().required().min(3),
-    year: Joi.number().required(),
-    producer: Joi.string(),
-  });
-  return schema.validate(movie);
-};
+const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send(genre);
+  const movies = Movie.find().sort({ title: 1 });
+  res.send(movies);
 });
 
 router.post("/", (req, res) => {
-  const { error } = validateSchema(req.body);
-  error
-    ? res.status(404).send(error.message)
-    : genre.push({
-        id: genre.length + 1,
-        name: req.body.name,
-        producer: req.body.producer,
-      });
-  res.send(genre);
+  const { error } = validateMovie(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+  const movie = new Movie({
+    title: req.body.title,
+    description: req.body.description,
+    numberInStock: req.body.numberInStock,
+    dailyRentalRate: req.body.dailyRentalRate,
+  });
+  try {
+    movie.save();
+    res.send(movie);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+  res.send(movie);
 });
 
 router.get("/:id", (req, res) => {
-  const movie = genre.find((m) => m.id === parseInt(req.params.id));
-  movie ? res.send(movie) : res.status(404).send("movie not found");
+  const movie = Movie.findById(req.params.id);
+  if (!movie)
+    return res.status(404).send("The movie with the given ID was not found.");
+  res.send(movie);
 });
 
 router.delete("/:id", (req, res) => {
-  const movie = genre.find((m) => m.id === parseInt(req.params.id));
-  if (!movie) return res.status(404).send("movie not found");
-  genre.splice(genre.indexOf(movie), 1);
-  res.send(genre);
+  const movie = Movie.findByIdAndRemove(req.params.id);
+  if (!movie)
+    return res.status(404).send("The movie with the given ID was not found.");
+  res.sendStatus(204);
 });
 
 router.put("/:id", (req, res) => {
-  const movie = genre.find((m) => m.id === parseInt(req.params.id));
-  if (!movie) return res.status(404).send("movie not found");
-  const { error } = validateSchema(req.body);
-  if (error) return res.status(404).send(error.message);
-  movie.name = req.body.name;
-  movie.year = req.body.year;
-  movie.producer = req.body.producer;
-  res.send(genre);
+  const { error } = validateMovie(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+  const movie = Movie.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!movie)
+    return res.status(404).send("The movie with the given ID was not found.");
+  res.send(movie);
 });
 
 module.exports = router;

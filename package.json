@@ -4,7 +4,8 @@
   "description": "vidmint is a video rental api",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm test",
+    "start": "npm start"
   },
   "repository": {
     "type": "git",
