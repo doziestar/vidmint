@@ -2,12 +2,14 @@ const mongoose = require("mongoose");
 const express = require("express");
 const movies = require("./src/routes/movies");
 const pages = require("./src/routes/pages");
+const users = require("./src/routes/users");
 
 const app = express();
 
 app.use(express.json());
 app.use("/api/genres", movies);
-app.use("/", pages);
+app.use("/api/users", users);
+app.use("/api/blog", pages);
 
 mongoose
   .connect("mongodb://localhost:27017/vidmint")
