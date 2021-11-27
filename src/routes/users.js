@@ -1,17 +1,34 @@
 const express = require("express");
-const User = require("../models/users");
-const userValidator = require("../validators/users");
+const _ = require("lodash");
+const bcrypt = require("bcrypt");
+
+const { User, validate } = require("../models/users");
 
 const router = express.Router();
 
 // create a new user
-router.post("/", async (req, res) => {
-  try {
-    const user = await User.create(req.body);
-    res.send(user);
-  } catch (err) {
-    res.status(400).send(err);
-  }
+// create a new user
+router.post("/register", async (req, res) => {
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  let user = await User.findOne({
+    email: req.body.email,
+    username: req.body.username,
+  });
+  if (user) return res.status(400).send("User already registered.");
+
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(req.body.password, salt);
+
+  user = new User({
+    fullName: req.body.fullName,
+    email: req.body.email,
+    username: req.body.username,
+    password: hash,
+  });
+  await user.save();
+  res.send(_.pick(user, ["_id", "username", "email"]));
 });
 
 // get all users

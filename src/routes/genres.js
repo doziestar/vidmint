@@ -19,3 +19,5 @@ router.post("/", async (req, res) => {
 
   res.send(genre);
 });
+
+module.exports = router;
