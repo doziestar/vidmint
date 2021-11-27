@@ -1,28 +1,34 @@
-const c = require("config");
 const express = require("express");
-const Joi = require("joi");
 const Movie = require("../models/movie");
+const Genre = require("../models/movie");
 const validateMovie = require("../validators/movie");
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  const movies = Movie.find().sort({ title: 1 });
+router.get("/", async (req, res) => {
+  const movies = await Movie.find().sort({ title: 1 });
   res.send(movies);
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { error } = validateMovie(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
+  const genre = await Genre.findById(req.body.genreId);
+  if (!genre) return res.status(400).send("Invalid genre.");
   const movie = new Movie({
     title: req.body.title,
     description: req.body.description,
     numberInStock: req.body.numberInStock,
     dailyRentalRate: req.body.dailyRentalRate,
+    genre: {
+      _id: genre._id,
+      name: genre.name,
+    },
   });
   try {
-    movie.save();
-    res.send(movie);
+    const result = await movie.save();
+    res.send(result);
   } catch (err) {
     res.status(400).send(err);
   }
