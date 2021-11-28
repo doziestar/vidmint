@@ -1,6 +1,7 @@
 const express = require("express");
 const validateBlog = require("../validators/pages");
 const Blog = require("../models/pages");
+const checkToken = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.get("/", async (req, res) => {
   res.send(blogs);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", checkToken, async (req, res) => {
   const { error } = validateBlog(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   let blog = new Blog({
@@ -35,7 +36,7 @@ router.get("/:slug", async (req, res) => {
   res.send(blog);
 });
 
-router.put("/:slug", async (req, res) => {
+router.put("/:slug", checkToken, async (req, res) => {
   const { error } = validateBlog(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const blog = await Blog.findOneAndUpdate(req.params.slug, req.body, {
@@ -46,7 +47,7 @@ router.put("/:slug", async (req, res) => {
   res.send(blog);
 });
 
-router.delete("/:slug", async (req, res) => {
+router.delete("/:slug", checkToken, async (req, res) => {
   const blog = await Blog.findOneAndDelete({ slug: req.params.slug });
   if (!blog)
     return res.status(404).send("The blog with the given slug was not found.");

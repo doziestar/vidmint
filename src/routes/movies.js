@@ -1,6 +1,7 @@
 const express = require("express");
 const { Movie, Genre } = require("../models/movie");
-// const Genre = require("../models/movie");
+const checkToken = require("../middleware/auth");
+const isAdmin = require("../middleware/admin");
 const validateMovie = require("../validators/movie");
 
 const router = express.Router();
@@ -10,7 +11,7 @@ router.get("/", async (req, res) => {
   res.send(movies);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", checkToken, async (req, res) => {
   const { error } = validateMovie(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -42,14 +43,14 @@ router.get("/:id", async (req, res) => {
   res.send(movie);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", [checkToken, isAdmin], async (req, res) => {
   const movie = await Movie.findByIdAndRemove(req.params.id);
   if (!movie)
     return res.status(404).send("The movie with the given ID was not found.");
   res.sendStatus(204);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", checkToken, async (req, res) => {
   const { error } = validateMovie(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
