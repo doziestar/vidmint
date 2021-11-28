@@ -1,6 +1,6 @@
 const express = require("express");
-const Movie = require("../models/movie");
-const Genre = require("../models/movie");
+const { Movie, Genre } = require("../models/movie");
+// const Genre = require("../models/movie");
 const validateMovie = require("../validators/movie");
 
 const router = express.Router();
@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
   const { error } = validateMovie(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const genre = await Genre.findById(req.body.genreId);
+  const genre = await Genre.findById(req.body.genre);
   if (!genre) return res.status(400).send("Invalid genre.");
   const movie = new Movie({
     title: req.body.title,
