@@ -8,15 +8,27 @@ const { User, validate } = require("../models/users");
 const router = express.Router();
 
 //login
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const { error } = validateUser(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send("Invalid email or password.");
+  try {
+    let user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(400).send("Invalid email or password.");
+  } catch (ex) {
+    next(ex);
+  }
 
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).send("Invalid email or password.");
+  try {
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!validPassword)
+      return res.status(400).send("Invalid email or password.");
+  } catch (ex) {
+    next(ex);
+  }
 
   const token = user.generateAuthToken();
 

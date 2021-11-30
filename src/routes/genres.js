@@ -1,11 +1,14 @@
 const express = require("express");
 const { Genre, validateGenre } = require("../models/movie");
 const checkToken = require("../middleware/auth");
+const logger = require("../middleware/log");
 
 const router = express.Router();
 
 // GET /api/genres
 router.get("/", async (req, res) => {
+  throw new Error("Not implemented");
+  logger.error(new Error("Something went wrong"));
   const genres = await Genre.find().sort({ name: 1 });
   res.send(genres);
 });
