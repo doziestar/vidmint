@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "vidmint is a video rental api",
   "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
   "scripts": {
-    "test": "npm test",
-    "start": "npm start"
+    "test": "jest",
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
